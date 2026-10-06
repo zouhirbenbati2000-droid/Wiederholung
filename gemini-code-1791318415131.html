@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wiederholungsübungen</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 700px; margin: 0 auto; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: #e65100; }
+        .tab-buttons { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 12px 24px; border: none; background: #e0e0e0; font-weight: bold; cursor: pointer; border-radius: 6px; font-size: 16px; }
+        .tab-btn.active { background: #e65100; color: white; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Karteikarten Style */
+        .card { background: #fff3e0; border-left: 6px solid #ef6c00; padding: 18px; border-radius: 8px; margin-bottom: 15px; cursor: pointer; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-2px); }
+        .card-answer { display: none; margin-top: 12px; padding-top: 10px; border-top: 1px dashed #ffa726; color: #1b5e20; font-weight: bold; }
+
+        /* Quiz Style */
+        .question-box { background: #fafafa; border: 1px solid #ddd; padding: 18px; border-radius: 8px; margin-bottom: 20px; }
+        .options { margin-top: 12px; }
+        .option-btn { display: block; width: 100%; text-align: left; padding: 10px; margin: 6px 0; border: 1px solid #ccc; background: #fff; border-radius: 5px; cursor: pointer; font-size: 15px; }
+        .option-btn:hover { background: #f0f0f0; }
+        .feedback { margin-top: 12px; font-weight: bold; display: none; padding: 10px; border-radius: 5px; }
+        .feedback.correct { background: #c8e6c9; color: #2e7d32; }
+        .feedback.incorrect { background: #ffcdd2; color: #c62828; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Wiederholungsübungen</h1>
+    
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="switchTab('quiz', this)">Quiz (15 Fragen)</button>
+        <button class="tab-btn" onclick="switchTab('flashcards', this)">Karteikarten (15 Karten)</button>
+    </div>
+
+    <!-- QUIZ TAB -->
+    <div id="quiz" class="tab-content active">
+        <h2>Einfaches Quiz</h2>
+        <div id="quiz-container"></div>
+    </div>
+
+    <!-- KARTEIKARTEN TAB -->
+    <div id="flashcards" class="tab-content">
+        <h2>Karteikarten (Klicken zum Aufklappen)</h2>
+        <div id="cards-container"></div>
+    </div>
+</div>
+
+<script>
+const quizData = [
+    {
+        q: "1. Was versteht man unter einer Diagnose?",
+        options: ["A) Das Erkennen und Benennen einer Krankheit", "B) Eine Operation durchführen", "C) Ein Medikament verschreiben"],
+        correct: 0,
+        explain: "Eine Diagnose ist das Erkennen und Benennen einer Erkrankung."
+    },
+    {
+        q: "2. Welche Untersuchungsmethode bedeutet 'Betrachten' des Patienten?",
+        options: ["A) Inspektion", "B) Palpation", "C) Auskultation"],
+        correct: 0,
+        explain: "Inspektion bedeutet das genaue Betrachten des Patienten."
+    },
+    {
+        q: "3. Welche Untersuchungsmethode bedeutet 'Abtasten'?",
+        options: ["A) Auskultation", "B) Palpation", "C) Perkussion"],
+        correct: 1,
+        explain: "Palpation ist der medizinische Begriff für Abtasten."
+    },
+    {
+        q: "4. Welche Untersuchungsmethode bedeutet 'Abhören' mit dem Stethoskop?",
+        options: ["A) Palpation", "B) Auskultation", "C) Inspektion"],
+        correct: 1,
+        explain: "Auskultation ist der Fachbegriff für das Abhören von Körpergeräuschen."
+    },
+    {
+        q: "5. Was ist ein Vorteil von Ultraschall?",
+        options: ["A) Es nutzt schädliche Strahlen", "B) Es ist schmerzfrei und ohne Strahlung", "C) Es dauert mehrere Stunden"],
+        correct: 1,
+        explain: "Ultraschall ist schmerzfrei und verwendet keine Röntgenstrahlen."
+    },
+    {
+        q: "6. Womit arbeitet ein MRT-Gerät?",
+        options: ["A) Magnetfeldern", "B) Röntgenstrahlen", "C) Laserlicht"],
+        correct: 0,
+        explain: "Ein MRT arbeitet mit Magnetfeldern statt mit Röntgenstrahlung."
+    },
+    {
+        q: "7. Was gehört zur Aufgabe der Pflege bei der Erstaufnahme eines Patienten?",
+        options: ["A) Begrüßung und Notrufanlage erklären", "B) Den Behandlungsplan alleine festlegen", "C) Die Operation planen"],
+        correct: 0,
+        explain: "Pflegekräfte begrüßen den Patienten und erklären wichtige Dinge wie den Notruf."
+    },
+    {
+        q: "8. Warum werden Blutentnahmen meist früh morgens gemacht?",
+        options: ["A) Damit die Laborwerte pünktlich zur Visite vorliegen", "B) Weil das Blut nachmittags schlecht ist", "C) Damit der Arzt ausschlafen kann"],
+        correct: 0,
+        explain: "Frühe Blutentnahmen sorgen dafür, dass die Laborwerte bei der Tagesvisite vorliegen."
+    },
+    {
+        q: "9. Wer nimmt normalerweise an der Arztvisite teil?",
+        options: ["A) Arzt und Pflegekraft", "B) Nur der Patient alleine", "C) Nur das Reinigungspersonal"],
+        correct: 0,
+        explain: "Bei der Arztvisite besprechen Arzt und Pflegekraft gemeinsam den Zustand des Patienten."
+    },
+    {
+        q: "10. Was ist das Hauptziel der Pflegevisite?",
+        options: ["A) Überprüfung und Sicherung der Pflegequalität", "B) Die Rechnung an die Krankenkasse zu schreiben", "C) Den Raum zu putzen"],
+        correct: 0,
+        explain: "Die Pflegevisite dient der Sicherung und Verbesserung der Pflegequalität."
+    },
+    {
+        q: "
